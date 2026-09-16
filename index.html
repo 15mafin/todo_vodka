@@ -1,0 +1,2622 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>GAME TODO</title>
+
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+
+/* ==============================
+   全体
+============================== */
+
+body {
+
+    margin: 0;
+
+    min-height: 100vh;
+
+    background: #0d0f14;
+
+    color: #f2f4f8;
+
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        "Noto Sans JP",
+        sans-serif;
+
+}
+
+
+.container {
+
+    width: min(900px, 94%);
+
+    margin: 0 auto;
+
+    padding: 45px 0 80px;
+
+}
+
+
+/* ==============================
+   HEADER
+============================== */
+
+header {
+
+    margin-bottom: 28px;
+
+}
+
+
+.top-row {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: flex-end;
+
+    gap: 20px;
+
+}
+
+
+h1 {
+
+    margin: 0;
+
+    font-size: 34px;
+
+    letter-spacing: 4px;
+
+}
+
+
+.subtitle {
+
+    margin-top: 8px;
+
+    color: #7d8594;
+
+    font-size: 14px;
+
+}
+
+
+#date {
+
+    color: #7d8594;
+
+    font-size: 14px;
+
+}
+
+
+/* ==============================
+   キャラタブ
+============================== */
+
+.tabs {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    margin-bottom: 28px;
+
+}
+
+
+.tab-button {
+
+    border: 1px solid #303642;
+
+    background: #151820;
+
+    color: #a8b0bd;
+
+    padding: 12px 17px;
+
+    border-radius: 12px;
+
+    cursor: pointer;
+
+    transition: .2s;
+
+    font-size: 14px;
+
+}
+
+
+.tab-button:hover {
+
+    background: #1d212b;
+
+    color: white;
+
+}
+
+
+.tab-button.active {
+
+    background: #6677ff;
+
+    border-color: #6677ff;
+
+    color: white;
+
+}
+
+
+.tab-progress {
+
+    margin-left: 8px;
+
+    padding: 3px 7px;
+
+    border-radius: 7px;
+
+    background: #232836;
+
+    color: #8d96a5;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+}
+
+
+.tab-button.active .tab-progress {
+
+    background: rgba(255,255,255,.16);
+
+    color: white;
+
+}
+
+
+.tab-progress.complete {
+
+    color: #9cffa9;
+
+    background: rgba(71,180,91,.14);
+
+}
+
+
+/* ==============================
+   キャラ名
+============================== */
+
+.character-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 18px;
+
+}
+
+
+.character-name {
+
+    font-size: 24px;
+
+    font-weight: 700;
+
+}
+
+
+.character-progress {
+
+    color: #7d8594;
+
+    font-size: 13px;
+
+}
+
+
+/* ==============================
+   CARD
+============================== */
+
+.card {
+
+    background: #151820;
+
+    border: 1px solid #222733;
+
+    border-radius: 18px;
+
+    padding: 25px;
+
+    margin-bottom: 22px;
+
+    box-shadow:
+        0 10px 30px
+        rgba(0,0,0,.18);
+
+}
+
+
+.section-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 18px;
+
+}
+
+
+.section-title {
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    letter-spacing: 2px;
+
+    color: #a8b0bd;
+
+}
+
+
+.counter {
+
+    color: #6d7685;
+
+    font-size: 13px;
+
+}
+
+
+/* ==============================
+   TODO
+============================== */
+
+.task {
+
+    min-height: 52px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    border-bottom:
+        1px solid #222630;
+
+    transition: .2s;
+
+}
+
+
+.task:last-child {
+
+    border-bottom: none;
+
+}
+
+
+.task:hover {
+
+    padding-left: 5px;
+
+}
+
+
+.check {
+
+    width: 22px;
+
+    height: 22px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    border:
+        2px solid #505866;
+
+    cursor: pointer;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    transition: .2s;
+
+}
+
+
+.check:hover {
+
+    border-color: #7c8cff;
+
+}
+
+
+.task.done .check {
+
+    background: #7c8cff;
+
+    border-color: #7c8cff;
+
+}
+
+
+.task.done .check::after {
+
+    content: "✓";
+
+    color: white;
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+}
+
+
+.task-name {
+
+    flex: 1;
+
+    font-size: 15px;
+
+    transition: .2s;
+
+}
+
+
+.task.done .task-name {
+
+    color: #606875;
+
+    text-decoration: line-through;
+
+}
+
+
+/* ==============================
+   回数制
+============================== */
+
+.multi-count {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+}
+
+
+.count-btn {
+
+    width: 31px;
+
+    height: 31px;
+
+    border:
+        1px solid #333947;
+
+    border-radius: 8px;
+
+    background: #1d212b;
+
+    color: #d8dce5;
+
+    cursor: pointer;
+
+    font-size: 16px;
+
+}
+
+
+.count-btn:hover {
+
+    background: #292f3d;
+
+}
+
+
+.count-number {
+
+    min-width: 42px;
+
+    text-align: center;
+
+    color: #9da6b5;
+
+    font-size: 13px;
+
+}
+
+
+/* ==============================
+   PROGRESS
+============================== */
+
+.progress-wrapper {
+
+    margin-top: 23px;
+
+}
+
+
+.progress-info {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-bottom: 9px;
+
+    color: #777f8e;
+
+    font-size: 12px;
+
+}
+
+
+.progress-bg {
+
+    height: 6px;
+
+    background: #242936;
+
+    border-radius: 10px;
+
+    overflow: hidden;
+
+}
+
+
+.progress-bar {
+
+    height: 100%;
+
+    width: 0%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #6677ff,
+            #9b7cff
+        );
+
+    border-radius: 10px;
+
+    transition:
+        width .35s ease;
+
+}
+
+
+/* ==============================
+   OTHER TODO
+============================== */
+
+.add-area {
+
+    display: flex;
+
+    gap: 10px;
+
+    margin-bottom: 15px;
+
+}
+
+
+input {
+
+    flex: 1;
+
+    min-width: 0;
+
+    padding: 13px 15px;
+
+    border-radius: 10px;
+
+    border:
+        1px solid #303642;
+
+    background: #10131a;
+
+    color: white;
+
+    outline: none;
+
+    font-size: 14px;
+
+}
+
+
+input:focus {
+
+    border-color: #6677ff;
+
+}
+
+
+input::placeholder {
+
+    color: #555d6b;
+
+}
+
+
+.add-button {
+
+    padding: 0 18px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #6677ff;
+
+    color: white;
+
+    cursor: pointer;
+
+    font-weight: 700;
+
+}
+
+
+.add-button:hover {
+
+    background: #7786ff;
+
+}
+
+
+.delete {
+
+    border: none;
+
+    background: none;
+
+    color: #555d69;
+
+    cursor: pointer;
+
+    font-size: 18px;
+
+}
+
+
+.delete:hover {
+
+    color: #e06c75;
+
+}
+
+
+.empty-message {
+
+    color: #555d69;
+
+    font-size: 13px;
+
+    padding: 8px 0;
+
+}
+
+
+/* ==============================
+   下部
+============================== */
+
+.reset-info {
+
+    text-align: center;
+
+    color: #555d69;
+
+    font-size: 11px;
+
+    margin-top: 28px;
+
+    line-height: 1.8;
+
+}
+
+
+/* ==============================
+   スマホ
+============================== */
+
+@media (max-width: 600px) {
+
+    .container {
+
+        padding-top: 28px;
+
+    }
+
+
+    h1 {
+
+        font-size: 27px;
+
+    }
+
+
+    .top-row {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+    }
+
+
+    .card {
+
+        padding: 20px;
+
+    }
+
+
+    .tab-button {
+
+        flex: 1 1 auto;
+
+    }
+
+
+    .character-header {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 6px;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<header>
+
+    <div class="top-row">
+
+        <div>
+
+            <h1>
+                GAME TODO
+            </h1>
+
+            <div class="subtitle">
+                キャラクター別 ルーティン管理
+            </div>
+
+        </div>
+
+
+        <div id="date">
+        </div>
+
+    </div>
+
+</header>
+
+
+
+<div
+    class="tabs"
+    id="tabs">
+</div>
+
+
+
+<div id="content">
+</div>
+
+
+
+<div class="reset-info">
+
+    DAILY RESET：毎日 1:00
+
+    <br>
+
+    WEEKLY RESET：毎週 月曜日 1:00
+
+</div>
+
+
+</div>
+
+
+
+<script>
+
+
+/* ==========================================
+   キャラクター
+========================================== */
+
+
+const characters = [
+
+    {
+        id: "uokka",
+        name: "ウオッカ"
+    },
+
+    {
+        id: "fuwafuwa",
+        name: "ふわふわんだふる"
+    },
+
+    {
+        id: "mayonaka",
+        name: "真夜中の姉貴"
+    },
+
+    {
+        id: "moody",
+        name: "ムーディ勝山"
+    }
+
+];
+
+
+
+/* ==========================================
+   DAILY
+========================================== */
+
+
+const dailyTasks = [
+
+    {
+        id: "yurikago",
+        name: "ゆりかご"
+    }
+
+];
+
+
+
+/* ==========================================
+   WEEKLY
+========================================== */
+
+
+const weeklyTasks = [
+
+    {
+        id: "hokora",
+        name: "祠"
+    },
+
+    {
+        id: "taiyo",
+        name: "太陽戦場",
+        max: 2
+    },
+
+    {
+        id: "kyodo",
+        name: "協同討伐"
+    },
+
+    {
+        id: "shiga",
+        name: "シガ"
+    },
+
+    {
+        id: "gekitotsu",
+        name: "激突"
+    },
+
+    {
+        id: "rabam",
+        name: "ラバム"
+    },
+
+    {
+        id: "shindan",
+        name: "死んだ神"
+    },
+
+    {
+        id: "eiko",
+        name: "栄光"
+    },
+
+    {
+        id: "kaizoku",
+        name: "海賊"
+    },
+
+    {
+        id: "potion",
+        name: "ポーション制作"
+    },
+
+    {
+        id: "yukiyama",
+        name: "雪山"
+    },
+
+    {
+        id: "sherekan",
+        name: "シェレカン"
+    },
+
+    {
+        id: "kiretsu",
+        name: "亀裂"
+    },
+
+    {
+        id: "nightmare",
+        name: "ナイトメア消化"
+    },
+
+    {
+        id: "yami",
+        name: "闇の隙間"
+    }
+
+];
+
+
+
+/* ==========================================
+   保存データ
+========================================== */
+
+
+let data =
+    JSON.parse(
+        localStorage.getItem(
+            "gameTodoDataV4"
+        )
+    )
+    ||
+    {
+
+        characters: {},
+
+        activeCharacter:
+            "uokka",
+
+        lastDailyReset:
+            "",
+
+        lastWeeklyReset:
+            ""
+
+    };
+
+
+
+/* ==========================================
+   キャラデータ初期化
+========================================== */
+
+
+characters.forEach(
+    character => {
+
+
+        if (
+            !data.characters[
+                character.id
+            ]
+        ) {
+
+
+            data.characters[
+                character.id
+            ] =
+            {
+
+                daily: {},
+
+                weekly: {},
+
+                other: []
+
+            };
+
+
+        }
+
+
+    }
+);
+
+
+
+/* ==========================================
+   保存
+========================================== */
+
+
+function save() {
+
+
+    localStorage.setItem(
+
+        "gameTodoDataV4",
+
+        JSON.stringify(data)
+
+    );
+
+
+}
+
+
+
+/* ==========================================
+   DAILYリセットキー
+   毎日1:00
+========================================== */
+
+
+function getDailyResetKey() {
+
+
+    const now =
+        new Date();
+
+
+    const adjusted =
+        new Date(
+            now.getTime()
+            -
+            60 * 60 * 1000
+        );
+
+
+    return (
+
+        adjusted.getFullYear()
+
+        + "-"
+
+        + (adjusted.getMonth() + 1)
+
+        + "-"
+
+        + adjusted.getDate()
+
+    );
+
+
+}
+
+
+
+/* ==========================================
+   WEEKLYリセットキー
+   毎週月曜1:00
+========================================== */
+
+
+function getWeeklyResetKey() {
+
+
+    const now =
+        new Date();
+
+
+    const adjusted =
+        new Date(
+            now.getTime()
+            -
+            60 * 60 * 1000
+        );
+
+
+    const day =
+        adjusted.getDay();
+
+
+    const daysFromMonday =
+        (day + 6) % 7;
+
+
+    adjusted.setDate(
+
+        adjusted.getDate()
+        -
+        daysFromMonday
+
+    );
+
+
+    adjusted.setHours(
+        0,
+        0,
+        0,
+        0
+    );
+
+
+    return adjusted.getTime();
+
+
+}
+
+
+
+/* ==========================================
+   自動リセット
+========================================== */
+
+
+function checkReset() {
+
+
+    const dailyKey =
+        getDailyResetKey();
+
+
+    const weeklyKey =
+        getWeeklyResetKey();
+
+
+
+    if (
+        data.lastDailyReset
+        !==
+        dailyKey
+    ) {
+
+
+        characters.forEach(
+            character => {
+
+
+                data.characters[
+                    character.id
+                ].daily = {};
+
+
+            }
+        );
+
+
+        data.lastDailyReset =
+            dailyKey;
+
+
+    }
+
+
+
+    if (
+        data.lastWeeklyReset
+        !==
+        weeklyKey
+    ) {
+
+
+        characters.forEach(
+            character => {
+
+
+                data.characters[
+                    character.id
+                ].weekly = {};
+
+
+            }
+        );
+
+
+        data.lastWeeklyReset =
+            weeklyKey;
+
+
+    }
+
+
+    save();
+
+
+}
+
+
+
+/* ==========================================
+   キャラ進捗計算
+========================================== */
+
+
+function getCharacterProgress(
+    characterId
+) {
+
+
+    const characterData =
+        data.characters[
+            characterId
+        ];
+
+
+    let completed =
+        0;
+
+
+
+    dailyTasks.forEach(
+        task => {
+
+
+            if (
+                characterData.daily[
+                    task.id
+                ]
+                ===
+                true
+            ) {
+
+
+                completed++;
+
+
+            }
+
+
+        }
+    );
+
+
+
+    weeklyTasks.forEach(
+        task => {
+
+
+            if (task.max) {
+
+
+                const count =
+
+                    characterData.weekly[
+                        task.id
+                    ]
+
+                    ||
+
+                    0;
+
+
+                if (
+                    count >= task.max
+                ) {
+
+
+                    completed++;
+
+
+                }
+
+
+            }
+
+            else {
+
+
+                if (
+                    characterData.weekly[
+                        task.id
+                    ]
+                    ===
+                    true
+                ) {
+
+
+                    completed++;
+
+
+                }
+
+
+            }
+
+
+        }
+    );
+
+
+
+    const total =
+
+        dailyTasks.length
+        +
+        weeklyTasks.length;
+
+
+    const percent =
+
+        total === 0
+
+        ?
+
+        0
+
+        :
+
+        Math.round(
+            completed
+            /
+            total
+            *
+            100
+        );
+
+
+    return {
+
+        completed,
+
+        total,
+
+        percent
+
+    };
+
+
+}
+
+
+
+/* ==========================================
+   タブ表示
+========================================== */
+
+
+function renderTabs() {
+
+
+    const tabs =
+        document.getElementById(
+            "tabs"
+        );
+
+
+    tabs.innerHTML = "";
+
+
+    characters.forEach(
+        character => {
+
+
+            const progress =
+                getCharacterProgress(
+                    character.id
+                );
+
+
+            const button =
+                document.createElement(
+                    "button"
+                );
+
+
+            button.className =
+
+                "tab-button"
+
+                +
+
+                (
+                    data.activeCharacter
+                    ===
+                    character.id
+
+                    ?
+
+                    " active"
+
+                    :
+
+                    ""
+                );
+
+
+
+            if (
+                progress.percent
+                ===
+                100
+            ) {
+
+
+                button.innerHTML =
+                `
+                    ${character.name}
+
+                    <span
+                        class="tab-progress complete">
+
+                        100% ✓
+
+                    </span>
+                `;
+
+
+            }
+
+            else {
+
+
+                button.innerHTML =
+                `
+                    ${character.name}
+
+                    <span
+                        class="tab-progress">
+
+                        ${progress.percent}%
+
+                    </span>
+                `;
+
+
+            }
+
+
+            button.onclick =
+                () => {
+
+
+                    data.activeCharacter =
+                        character.id;
+
+
+                    save();
+
+                    renderAll();
+
+
+                };
+
+
+            tabs.appendChild(
+                button
+            );
+
+
+        }
+    );
+
+
+}
+
+
+
+/* ==========================================
+   メイン画面
+========================================== */
+
+
+function renderContent() {
+
+
+    const characterId =
+        data.activeCharacter;
+
+
+    const character =
+        characters.find(
+
+            c =>
+                c.id
+                ===
+                characterId
+
+        );
+
+
+    const content =
+        document.getElementById(
+            "content"
+        );
+
+
+    content.innerHTML =
+    `
+
+        <div class="character-header">
+
+            <div class="character-name">
+
+                ${character.name}
+
+            </div>
+
+            <div
+                class="character-progress"
+                id="totalProgress">
+
+            </div>
+
+        </div>
+
+
+
+        <section class="card">
+
+            <div class="section-header">
+
+                <div class="section-title">
+
+                    DAILY
+
+                </div>
+
+                <div
+                    class="counter"
+                    id="dailyCounter">
+
+                </div>
+
+            </div>
+
+
+            <div id="dailyList">
+            </div>
+
+        </section>
+
+
+
+        <section class="card">
+
+            <div class="section-header">
+
+                <div class="section-title">
+
+                    WEEKLY
+
+                </div>
+
+                <div
+                    class="counter"
+                    id="weeklyCounter">
+
+                </div>
+
+            </div>
+
+
+            <div id="weeklyList">
+            </div>
+
+
+
+            <div class="progress-wrapper">
+
+                <div class="progress-info">
+
+                    <span>
+                        WEEKLY PROGRESS
+                    </span>
+
+                    <span
+                        id="weeklyPercent">
+
+                        0%
+
+                    </span>
+
+                </div>
+
+
+                <div class="progress-bg">
+
+                    <div
+                        class="progress-bar"
+                        id="weeklyProgressBar">
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <section class="card">
+
+            <div class="section-header">
+
+                <div class="section-title">
+
+                    OTHER TODO
+
+                </div>
+
+            </div>
+
+
+            <div class="add-area">
+
+
+                <input
+                    id="newOtherTask"
+                    type="text"
+                    placeholder="${character.name} のTODOを追加..."
+                >
+
+
+                <button
+                    class="add-button"
+                    onclick="addOtherTask()"
+                >
+
+                    ADD
+
+                </button>
+
+
+            </div>
+
+
+            <div id="otherList">
+            </div>
+
+        </section>
+
+    `;
+
+
+    renderDaily();
+
+    renderWeekly();
+
+    renderOther();
+
+    renderTotalProgress();
+
+
+
+    document
+        .getElementById(
+            "newOtherTask"
+        )
+        .addEventListener(
+
+            "keydown",
+
+            function(event) {
+
+
+                if (
+                    event.key
+                    ===
+                    "Enter"
+                ) {
+
+
+                    addOtherTask();
+
+
+                }
+
+
+            }
+
+        );
+
+
+}
+
+
+
+/* ==========================================
+   DAILY表示
+========================================== */
+
+
+function renderDaily() {
+
+
+    const characterId =
+        data.activeCharacter;
+
+
+    const characterData =
+        data.characters[
+            characterId
+        ];
+
+
+    const list =
+        document.getElementById(
+            "dailyList"
+        );
+
+
+    list.innerHTML = "";
+
+
+    let completed =
+        0;
+
+
+
+    dailyTasks.forEach(
+        task => {
+
+
+            const done =
+
+                characterData.daily[
+                    task.id
+                ]
+                ===
+                true;
+
+
+            if (done) {
+
+                completed++;
+
+            }
+
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+
+            row.className =
+
+                "task"
+
+                +
+
+                (
+                    done
+                    ?
+                    " done"
+                    :
+                    ""
+                );
+
+
+            row.innerHTML =
+            `
+
+                <div
+                    class="check"
+                    onclick="toggleDaily('${task.id}')"
+                >
+                </div>
+
+
+                <div class="task-name">
+
+                    ${task.name}
+
+                </div>
+
+            `;
+
+
+            list.appendChild(
+                row
+            );
+
+
+        }
+    );
+
+
+
+    document
+        .getElementById(
+            "dailyCounter"
+        )
+        .textContent =
+
+        `${completed} / ${dailyTasks.length}`;
+
+
+}
+
+
+
+/* ==========================================
+   DAILYチェック
+========================================== */
+
+
+function toggleDaily(
+    taskId
+) {
+
+
+    const characterData =
+        data.characters[
+            data.activeCharacter
+        ];
+
+
+    characterData.daily[
+        taskId
+    ] =
+
+        !characterData.daily[
+            taskId
+        ];
+
+
+    save();
+
+    renderAll();
+
+
+}
+
+
+
+/* ==========================================
+   WEEKLY表示
+========================================== */
+
+
+function renderWeekly() {
+
+
+    const characterData =
+        data.characters[
+            data.activeCharacter
+        ];
+
+
+    const list =
+        document.getElementById(
+            "weeklyList"
+        );
+
+
+    list.innerHTML = "";
+
+
+    let completed =
+        0;
+
+
+
+    weeklyTasks.forEach(
+        task => {
+
+
+            let done =
+                false;
+
+
+
+            if (task.max) {
+
+
+                const count =
+
+                    characterData.weekly[
+                        task.id
+                    ]
+
+                    ||
+
+                    0;
+
+
+                done =
+                    count >= task.max;
+
+
+
+                const row =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                row.className =
+
+                    "task"
+
+                    +
+
+                    (
+                        done
+                        ?
+                        " done"
+                        :
+                        ""
+                    );
+
+
+                row.innerHTML =
+                `
+
+                    <div
+                        class="check">
+                    </div>
+
+
+                    <div
+                        class="task-name">
+
+                        ${task.name}
+
+                    </div>
+
+
+                    <div
+                        class="multi-count">
+
+
+                        <button
+                            class="count-btn"
+                            onclick="changeCount(
+                                '${task.id}',
+                                -1,
+                                ${task.max}
+                            )"
+                        >
+
+                            −
+
+                        </button>
+
+
+                        <div
+                            class="count-number">
+
+                            ${count}
+                            /
+                            ${task.max}
+
+                        </div>
+
+
+                        <button
+                            class="count-btn"
+                            onclick="changeCount(
+                                '${task.id}',
+                                1,
+                                ${task.max}
+                            )"
+                        >
+
+                            ＋
+
+                        </button>
+
+
+                    </div>
+
+                `;
+
+
+                list.appendChild(
+                    row
+                );
+
+
+            }
+
+            else {
+
+
+                done =
+
+                    characterData.weekly[
+                        task.id
+                    ]
+
+                    ===
+
+                    true;
+
+
+
+                const row =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                row.className =
+
+                    "task"
+
+                    +
+
+                    (
+                        done
+                        ?
+                        " done"
+                        :
+                        ""
+                    );
+
+
+                row.innerHTML =
+                `
+
+                    <div
+                        class="check"
+                        onclick="toggleWeekly('${task.id}')"
+                    >
+                    </div>
+
+
+                    <div
+                        class="task-name">
+
+                        ${task.name}
+
+                    </div>
+
+                `;
+
+
+                list.appendChild(
+                    row
+                );
+
+
+            }
+
+
+
+            if (done) {
+
+                completed++;
+
+            }
+
+
+        }
+    );
+
+
+
+    const total =
+        weeklyTasks.length;
+
+
+
+    document
+        .getElementById(
+            "weeklyCounter"
+        )
+        .textContent =
+
+        `${completed} / ${total}`;
+
+
+
+    const percent =
+
+        Math.round(
+
+            completed
+            /
+            total
+            *
+            100
+
+        );
+
+
+
+    document
+        .getElementById(
+            "weeklyPercent"
+        )
+        .textContent =
+
+        percent
+        +
+        "%";
+
+
+
+    document
+        .getElementById(
+            "weeklyProgressBar"
+        )
+        .style.width =
+
+        percent
+        +
+        "%";
+
+
+}
+
+
+
+/* ==========================================
+   WEEKLYチェック
+========================================== */
+
+
+function toggleWeekly(
+    taskId
+) {
+
+
+    const characterData =
+        data.characters[
+            data.activeCharacter
+        ];
+
+
+    characterData.weekly[
+        taskId
+    ] =
+
+        !characterData.weekly[
+            taskId
+        ];
+
+
+    save();
+
+    renderAll();
+
+
+}
+
+
+
+/* ==========================================
+   回数変更
+========================================== */
+
+
+function changeCount(
+    taskId,
+    amount,
+    max
+) {
+
+
+    const characterData =
+        data.characters[
+            data.activeCharacter
+        ];
+
+
+    let count =
+
+        characterData.weekly[
+            taskId
+        ]
+
+        ||
+
+        0;
+
+
+
+    count += amount;
+
+
+
+    count =
+        Math.max(
+
+            0,
+
+            Math.min(
+                max,
+                count
+            )
+
+        );
+
+
+
+    characterData.weekly[
+        taskId
+    ] =
+
+        count;
+
+
+
+    save();
+
+    renderAll();
+
+
+}
+
+
+
+/* ==========================================
+   OTHER追加
+========================================== */
+
+
+function addOtherTask() {
+
+
+    const input =
+        document.getElementById(
+            "newOtherTask"
+        );
+
+
+    if (!input) {
+
+        return;
+
+    }
+
+
+    const text =
+        input.value.trim();
+
+
+    if (!text) {
+
+        return;
+
+    }
+
+
+
+    const characterData =
+        data.characters[
+            data.activeCharacter
+        ];
+
+
+
+    characterData.other.push(
+
+        {
+
+            id:
+                Date.now(),
+
+            name:
+                text,
+
+            done:
+                false
+
+        }
+
+    );
+
+
+    input.value = "";
+
+
+    save();
+
+    renderAll();
+
+
+}
+
+
+
+/* ==========================================
+   OTHER表示
+========================================== */
+
+
+function renderOther() {
+
+
+    const characterData =
+        data.characters[
+            data.activeCharacter
+        ];
+
+
+    const list =
+        document.getElementById(
+            "otherList"
+        );
+
+
+    list.innerHTML = "";
+
+
+
+    if (
+        characterData.other.length
+        ===
+        0
+    ) {
+
+
+        list.innerHTML =
+        `
+
+            <div
+                class="empty-message">
+
+                追加TODOはまだありません。
+
+            </div>
+
+        `;
+
+
+        return;
+
+
+    }
+
+
+
+    characterData.other.forEach(
+        task => {
+
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+
+            row.className =
+
+                "task"
+
+                +
+
+                (
+                    task.done
+                    ?
+                    " done"
+                    :
+                    ""
+                );
+
+
+            row.innerHTML =
+            `
+
+                <div
+                    class="check"
+                    onclick="toggleOther(${task.id})"
+                >
+                </div>
+
+
+                <div
+                    class="task-name">
+
+                    ${escapeHtml(
+                        task.name
+                    )}
+
+                </div>
+
+
+                <button
+                    class="delete"
+                    onclick="deleteOther(${task.id})"
+                >
+
+                    ×
+
+                </button>
+
+            `;
+
+
+            list.appendChild(
+                row
+            );
+
+
+        }
+    );
+
+
+}
+
+
+
+/* ==========================================
+   OTHERチェック
+========================================== */
+
+
+function toggleOther(
+    taskId
+) {
+
+
+    const characterData =
+        data.characters[
+            data.activeCharacter
+        ];
+
+
+    const task =
+        characterData.other.find(
+
+            task =>
+                task.id
+                ===
+                taskId
+
+        );
+
+
+    if (!task) {
+
+        return;
+
+    }
+
+
+    task.done =
+        !task.done;
+
+
+    save();
+
+    renderAll();
+
+
+}
+
+
+
+/* ==========================================
+   OTHER削除
+========================================== */
+
+
+function deleteOther(
+    taskId
+) {
+
+
+    const characterData =
+        data.characters[
+            data.activeCharacter
+        ];
+
+
+    characterData.other =
+
+        characterData.other.filter(
+
+            task =>
+                task.id
+                !==
+                taskId
+
+        );
+
+
+    save();
+
+    renderAll();
+
+
+}
+
+
+
+/* ==========================================
+   キャラ全体進捗
+========================================== */
+
+
+function renderTotalProgress() {
+
+
+    const progress =
+        getCharacterProgress(
+            data.activeCharacter
+        );
+
+
+    document
+        .getElementById(
+            "totalProgress"
+        )
+        .textContent =
+
+        `${progress.completed} / ${progress.total} 完了 ・ ${progress.percent}%`;
+
+
+}
+
+
+
+/* ==========================================
+   HTML安全表示
+========================================== */
+
+
+function escapeHtml(
+    text
+) {
+
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+
+    div.textContent =
+        text;
+
+
+    return div.innerHTML;
+
+
+}
+
+
+
+/* ==========================================
+   日付
+========================================== */
+
+
+function showDate() {
+
+
+    const now =
+        new Date();
+
+
+    const formatted =
+
+        new Intl.DateTimeFormat(
+
+            "ja-JP",
+
+            {
+
+                month:
+                    "2-digit",
+
+                day:
+                    "2-digit",
+
+                weekday:
+                    "short"
+
+            }
+
+        )
+        .format(now);
+
+
+
+    document
+        .getElementById(
+            "date"
+        )
+        .textContent =
+
+        formatted;
+
+
+}
+
+
+
+/* ==========================================
+   全体再描画
+========================================== */
+
+
+function renderAll() {
+
+
+    renderTabs();
+
+    renderContent();
+
+    showDate();
+
+
+}
+
+
+
+/* ==========================================
+   起動
+========================================== */
+
+
+checkReset();
+
+renderAll();
+
+
+
+setInterval(
+
+    () => {
+
+
+        checkReset();
+
+        renderAll();
+
+
+    },
+
+    60000
+
+);
+
+
+</script>
+
+
+</body>
+
+</html>
