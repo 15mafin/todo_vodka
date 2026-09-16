@@ -711,6 +711,84 @@ input::placeholder {
 
 }
 
+
+
+/* ==========================================
+   SUPABASE CLOUD / LOGIN
+========================================== */
+.cloud-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #9aa4b2;
+}
+.cloud-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #6b7280;
+    display: inline-block;
+}
+.cloud-dot.online { background: #22c55e; }
+.cloud-dot.saving { background: #f59e0b; }
+.cloud-dot.error { background: #ef4444; }
+.cloud-logout {
+    border: 1px solid #374151;
+    background: transparent;
+    color: #cbd5e1;
+    border-radius: 8px;
+    padding: 5px 9px;
+    cursor: pointer;
+}
+.auth-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(8, 11, 16, 0.96);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.auth-overlay.hidden { display: none; }
+.auth-card {
+    width: min(420px, 100%);
+    background: #111827;
+    border: 1px solid #273244;
+    border-radius: 18px;
+    padding: 26px;
+    box-shadow: 0 24px 70px rgba(0,0,0,.45);
+}
+.auth-card h2 { margin: 0 0 8px; font-size: 24px; }
+.auth-card p { margin: 0 0 20px; color: #9ca3af; font-size: 13px; line-height: 1.6; }
+.auth-card label { display:block; margin: 12px 0 6px; font-size: 12px; color:#cbd5e1; }
+.auth-card input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 13px;
+    border-radius: 10px;
+    border: 1px solid #374151;
+    background: #0b1220;
+    color: #f8fafc;
+    font-size: 16px;
+}
+.auth-card button {
+    width: 100%;
+    margin-top: 18px;
+    padding: 12px;
+    border: 0;
+    border-radius: 10px;
+    background: #16a34a;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+}
+.auth-card button:disabled { opacity:.6; cursor:wait; }
+.auth-message { min-height: 20px; margin-top: 12px; font-size: 12px; color:#fca5a5; }
+
 </style>
 
 </head>
@@ -718,6 +796,18 @@ input::placeholder {
 
 <body>
 
+<div class="auth-overlay" id="authOverlay">
+    <form class="auth-card" id="loginForm">
+        <h2>GAME TODO</h2>
+        <p>Vodkaさん専用クラウドセーブ<br>PC・スマホで同じデータを使えます。</p>
+        <label for="loginEmail">メールアドレス</label>
+        <input id="loginEmail" type="email" autocomplete="username" required>
+        <label for="loginPassword">パスワード</label>
+        <input id="loginPassword" type="password" autocomplete="current-password" required>
+        <button id="loginButton" type="submit">ログイン</button>
+        <div class="auth-message" id="authMessage"></div>
+    </form>
+</div>
 
 <div class="container">
 
@@ -742,6 +832,12 @@ input::placeholder {
         <div id="date">
         </div>
 
+    </div>
+
+    <div class="cloud-bar" id="cloudBar" style="display:none;">
+        <span class="cloud-dot" id="cloudDot"></span>
+        <span id="cloudStatus">クラウド接続中...</span>
+        <button class="cloud-logout" type="button" onclick="logoutVodka()">ログアウト</button>
     </div>
 
 </header>
@@ -774,6 +870,8 @@ input::placeholder {
 </div>
 
 
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 
@@ -986,17 +1084,194 @@ characters.forEach(
 
 function save() {
 
-
+    // 端末内にもバックアップとして保存
     localStorage.setItem(
-
         "gameTodoDataV4",
-
         JSON.stringify(data)
-
     );
 
-
+    // ログイン済みならSupabaseにも保存（短時間の連打はまとめる）
+    scheduleCloudSave();
 }
+
+
+/* ==========================================
+   SUPABASE CLOUD
+========================================== */
+
+const SUPABASE_URL = "https://kpkwjyzbfmircfdoqidi.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_CJXQZ3t9k3CBEZmriBUQlw_ghKlERW6";
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+);
+
+let cloudUser = null;
+let cloudSaveTimer = null;
+let cloudRowId = null;
+let cloudReady = false;
+
+function setCloudStatus(text, state = "online") {
+    const bar = document.getElementById("cloudBar");
+    const dot = document.getElementById("cloudDot");
+    const label = document.getElementById("cloudStatus");
+    if (!bar || !dot || !label) return;
+    bar.style.display = cloudUser ? "flex" : "none";
+    label.textContent = text;
+    dot.className = "cloud-dot " + state;
+}
+
+function normalizeData(loaded) {
+    if (!loaded || typeof loaded !== "object") return data;
+    if (!loaded.characters || typeof loaded.characters !== "object") loaded.characters = {};
+    if (!loaded.activeCharacter) loaded.activeCharacter = "uokka";
+    if (typeof loaded.lastDailyReset !== "string") loaded.lastDailyReset = "";
+    if (typeof loaded.lastWeeklyReset !== "string") loaded.lastWeeklyReset = "";
+
+    characters.forEach(character => {
+        if (!loaded.characters[character.id]) {
+            loaded.characters[character.id] = { daily: {}, weekly: {}, other: [] };
+        }
+        const c = loaded.characters[character.id];
+        if (!c.daily || typeof c.daily !== "object") c.daily = {};
+        if (!c.weekly || typeof c.weekly !== "object") c.weekly = {};
+        if (!Array.isArray(c.other)) c.other = [];
+    });
+    return loaded;
+}
+
+function scheduleCloudSave() {
+    if (!cloudUser || !cloudReady) return;
+    clearTimeout(cloudSaveTimer);
+    setCloudStatus("保存中...", "saving");
+    cloudSaveTimer = setTimeout(saveToCloud, 450);
+}
+
+async function saveToCloud() {
+    if (!cloudUser || !cloudReady) return;
+    try {
+        const payload = {
+            user_id: cloudUser.id,
+            save_data: data,
+            updated_at: new Date().toISOString()
+        };
+
+        let result;
+        if (cloudRowId !== null) {
+            result = await supabaseClient
+                .from("vodka_saves")
+                .update(payload)
+                .eq("id", cloudRowId)
+                .eq("user_id", cloudUser.id)
+                .select("id")
+                .single();
+        } else {
+            result = await supabaseClient
+                .from("vodka_saves")
+                .insert(payload)
+                .select("id")
+                .single();
+        }
+
+        if (result.error) throw result.error;
+        cloudRowId = result.data.id;
+        setCloudStatus("クラウド保存済み", "online");
+    } catch (error) {
+        console.error("Cloud save error:", error);
+        setCloudStatus("保存エラー", "error");
+    }
+}
+
+async function loadCloudData() {
+    setCloudStatus("クラウド読込中...", "saving");
+
+    const { data: rows, error } = await supabaseClient
+        .from("vodka_saves")
+        .select("id, save_data, updated_at")
+        .eq("user_id", cloudUser.id)
+        .order("updated_at", { ascending: false })
+        .limit(1);
+
+    if (error) throw error;
+
+    if (rows && rows.length > 0) {
+        cloudRowId = rows[0].id;
+        data = normalizeData(rows[0].save_data);
+        localStorage.setItem("gameTodoDataV4", JSON.stringify(data));
+        cloudReady = true;
+        checkReset();
+        renderAll();
+        setCloudStatus("クラウド同期済み", "online");
+    } else {
+        // 初回だけ、今の端末に残っているTODOをクラウドへ移行
+        cloudReady = true;
+        data = normalizeData(data);
+        checkReset();
+        renderAll();
+        await saveToCloud();
+    }
+}
+
+async function startCloudSession(user) {
+    cloudUser = user;
+    document.getElementById("authOverlay").classList.add("hidden");
+    document.getElementById("cloudBar").style.display = "flex";
+    try {
+        await loadCloudData();
+    } catch (error) {
+        console.error("Cloud load error:", error);
+        cloudReady = false;
+        setCloudStatus("読込エラー", "error");
+        alert("クラウドデータの読み込みに失敗しました。通信状態を確認して、ページを再読み込みしてください。");
+    }
+}
+
+async function logoutVodka() {
+    cloudReady = false;
+    cloudUser = null;
+    cloudRowId = null;
+    clearTimeout(cloudSaveTimer);
+    await supabaseClient.auth.signOut();
+    document.getElementById("cloudBar").style.display = "none";
+    document.getElementById("authOverlay").classList.remove("hidden");
+    document.getElementById("loginPassword").value = "";
+}
+
+async function initializeAuth() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session && session.user) {
+        await startCloudSession(session.user);
+    }
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("loginForm");
+    form.addEventListener("submit", async event => {
+        event.preventDefault();
+        const button = document.getElementById("loginButton");
+        const message = document.getElementById("authMessage");
+        button.disabled = true;
+        button.textContent = "ログイン中...";
+        message.textContent = "";
+
+        const email = document.getElementById("loginEmail").value.trim();
+        const password = document.getElementById("loginPassword").value;
+        const { data: authData, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+        button.disabled = false;
+        button.textContent = "ログイン";
+
+        if (error) {
+            console.error("Login error:", error);
+            message.textContent = "ログインできませんでした。メールアドレスとパスワードを確認してください。";
+            return;
+        }
+        document.getElementById("loginPassword").value = "";
+        await startCloudSession(authData.user);
+    });
+
+    initializeAuth();
+});
 
 
 
