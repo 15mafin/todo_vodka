@@ -1101,6 +1101,7 @@ function save() {
 
 const SUPABASE_URL = "https://kpkwjyzbfmircfdoqidi.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_CJXQZ3t9k3CBEZmriBUQlw_ghKlERW6";
+const VODKA_USER_ID = "72a93652-defc-483e-aae7-38d452d9bad5";
 const supabaseClient = window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_PUBLISHABLE_KEY
@@ -1213,16 +1214,39 @@ async function loadCloudData() {
 }
 
 async function startCloudSession(user) {
+    // Vodkaさん本人のSupabaseアカウントだけを許可する
+    if (!user || user.id !== VODKA_USER_ID) {
+        cloudReady = false;
+        cloudUser = null;
+        cloudRowId = null;
+        clearTimeout(cloudSaveTimer);
+
+        await supabaseClient.auth.signOut();
+
+        document.getElementById("cloudBar").style.display = "none";
+        document.getElementById("authOverlay").classList.remove("hidden");
+        document.getElementById("loginPassword").value = "";
+
+        const message = document.getElementById("authMessage");
+        if (message) {
+            message.textContent = "このアカウントではVodka TODOを利用できません。";
+        }
+        return false;
+    }
+
     cloudUser = user;
     document.getElementById("authOverlay").classList.add("hidden");
     document.getElementById("cloudBar").style.display = "flex";
+
     try {
         await loadCloudData();
+        return true;
     } catch (error) {
         console.error("Cloud load error:", error);
         cloudReady = false;
         setCloudStatus("読込エラー", "error");
         alert("クラウドデータの読み込みに失敗しました。通信状態を確認して、ページを再読み込みしてください。");
+        return false;
     }
 }
 
