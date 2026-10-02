@@ -1145,7 +1145,11 @@ function scheduleCloudSave() {
     if (!cloudUser || !cloudReady) return;
     clearTimeout(cloudSaveTimer);
     setCloudStatus("保存中...", "saving");
-    cloudSaveTimer = setTimeout(saveToCloud, 450);
+
+    // TODOの変更は待たずにクラウドへ送る。
+    // 以前の450ms待機だと、チェック直後にログアウト/ブラウザ終了した場合、
+    // 保存予約が実行される前に消えてしまうことがあった。
+    saveToCloud();
 }
 
 async function saveToCloud() {
@@ -1251,6 +1255,12 @@ async function startCloudSession(user) {
 }
 
 async function logoutVodka() {
+    // ログアウト直前にも現在の状態を確実にクラウドへ保存する
+    if (cloudUser && cloudReady) {
+        clearTimeout(cloudSaveTimer);
+        await saveToCloud();
+    }
+
     cloudReady = false;
     cloudUser = null;
     cloudRowId = null;
