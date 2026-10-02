@@ -1422,11 +1422,25 @@ function checkReset() {
         changed = true;
     }
 
-    // WEEKLYは毎週月曜1:00をまたいだ時だけリセット
-    if (data.lastWeeklyReset !== weeklyKey) {
+    // WEEKLYは「前回保存されている週」が現在より古い場合だけリセットする。
+    // !== だけで比較すると、古い形式・時刻差・初期値などでも
+    // ログイン/F5のたびにリセットされる可能性があるため、
+    // 現在の週より過去かどうかを数値で判定する。
+    const savedWeeklyKey = Number(data.lastWeeklyReset) || 0;
+
+    if (savedWeeklyKey === 0) {
+        // 既存データ移行時はWEEKLYのチェックを消さず、
+        // 現在の週を基準として登録するだけにする。
+        data.lastWeeklyReset = weeklyKey;
+        changed = true;
+    } else if (savedWeeklyKey < weeklyKey) {
         characters.forEach(character => {
             data.characters[character.id].weekly = {};
         });
+        data.lastWeeklyReset = weeklyKey;
+        changed = true;
+    } else if (savedWeeklyKey > weeklyKey) {
+        // 端末時刻のずれ等で未来の値が入っていてもTODOは消さない。
         data.lastWeeklyReset = weeklyKey;
         changed = true;
     }
