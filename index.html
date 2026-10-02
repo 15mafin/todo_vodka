@@ -1399,76 +1399,33 @@ function getWeeklyResetKey() {
 
 function checkReset() {
 
+    const dailyKey = getDailyResetKey();
+    const weeklyKey = getWeeklyResetKey();
+    let changed = false;
 
-    const dailyKey =
-        getDailyResetKey();
-
-
-    const weeklyKey =
-        getWeeklyResetKey();
-
-
-
-    if (
-        data.lastDailyReset
-        !==
-        dailyKey
-    ) {
-
-
-        characters.forEach(
-            character => {
-
-
-                data.characters[
-                    character.id
-                ].daily = {};
-
-
-            }
-        );
-
-
-        data.lastDailyReset =
-            dailyKey;
-
-
+    // DAILYは毎日1:00をまたいだ時だけリセット
+    if (data.lastDailyReset !== dailyKey) {
+        characters.forEach(character => {
+            data.characters[character.id].daily = {};
+        });
+        data.lastDailyReset = dailyKey;
+        changed = true;
     }
 
-
-
-    if (
-        data.lastWeeklyReset
-        !==
-        weeklyKey
-    ) {
-
-
-        characters.forEach(
-            character => {
-
-
-                data.characters[
-                    character.id
-                ].weekly = {};
-
-
-            }
-        );
-
-
-        data.lastWeeklyReset =
-            weeklyKey;
-
-
+    // WEEKLYは毎週月曜1:00をまたいだ時だけリセット
+    if (data.lastWeeklyReset !== weeklyKey) {
+        characters.forEach(character => {
+            data.characters[character.id].weekly = {};
+        });
+        data.lastWeeklyReset = weeklyKey;
+        changed = true;
     }
 
-
-    save();
-
-
+    // 実際にリセットが発生した時だけ保存する
+    if (changed) {
+        save();
+    }
 }
-
 
 
 /* ==========================================
@@ -2890,26 +2847,18 @@ function renderAll() {
 ========================================== */
 
 
-checkReset();
-
+// 起動直後はローカルデータをリセットしない。
+// Vodkaさんのクラウドデータを読み込んだ後、loadCloudData() 内で初めて判定する。
 renderAll();
 
-
-
 setInterval(
-
     () => {
-
-
+        // クラウドデータの読込完了後だけリセット判定する
+        if (!cloudReady) return;
         checkReset();
-
         renderAll();
-
-
     },
-
     60000
-
 );
 
 
