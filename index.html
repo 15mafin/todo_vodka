@@ -1033,7 +1033,7 @@ let data =
             "",
 
         lastWeeklyReset:
-            ""
+            0
 
     };
 
@@ -1127,7 +1127,7 @@ function normalizeData(loaded) {
     if (!loaded.characters || typeof loaded.characters !== "object") loaded.characters = {};
     if (!loaded.activeCharacter) loaded.activeCharacter = "uokka";
     if (typeof loaded.lastDailyReset !== "string") loaded.lastDailyReset = "";
-    if (typeof loaded.lastWeeklyReset !== "string") loaded.lastWeeklyReset = "";
+    if (typeof loaded.lastWeeklyReset !== "number") loaded.lastWeeklyReset = 0;
 
     characters.forEach(character => {
         if (!loaded.characters[character.id]) {
